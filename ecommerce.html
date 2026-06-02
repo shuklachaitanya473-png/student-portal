@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop — Smart Student Portal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* ── LOGIN MODAL ─────────────────────────
+       Covers the whole page until user logs in */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 500;
+    }
+
+    .modal-box {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 32px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .modal-box h2 { margin-bottom: 6px; }
+    .modal-box p  { color: #555; margin-bottom: 20px; font-size: 0.9rem; }
+
+    .modal-toggle {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 0.88rem;
+      color: #555;
+    }
+
+    .modal-toggle a { cursor: pointer; }
+
+    /* ── STORE HEADER ────────────────────────
+       Shows title, user name, and logout button */
+    .store-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    /* ── SEARCH + CATEGORY FILTERS ──────────── */
+    .shop-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .shop-controls input { max-width: 260px; }
+
+    .cat-btn {
+      padding: 6px 14px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+
+    .cat-btn.active { background: #0057d8; color: #fff; border-color: #0057d8; }
+
+    /* ── PRODUCTS GRID ───────────────────────
+       Responsive grid of product cards */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .product-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* Emoji image area */
+    .product-image {
+      background: #f5f5f5;
+      text-align: center;
+      font-size: 3rem;
+      padding: 24px;
+      position: relative;
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: #0057d8;
+      color: #fff;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .wish-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .product-info { padding: 14px; }
+
+    .product-cat  { font-size: 0.75rem; color: #888; text-transform: capitalize; margin-bottom: 4px; }
+    .product-name { font-size: 0.95rem; font-weight: bold; margin-bottom: 6px; }
+
+    .product-rating { font-size: 0.82rem; color: #888; margin-bottom: 10px; }
+    .stars { color: #d69e2e; }
+
+    /* Price row: price on left, add button on right */
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .price       { font-weight: bold; }
+    .price-orig  { text-decoration: line-through; color: #aaa; font-size: 0.82rem; margin-right: 4px; }
+
+    .add-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid #0057d8;
+      background: none;
+      color: #0057d8;
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .add-btn.added { background: #0057d8; color: #fff; }
+
+    /* ── CART FAB ────────────────────────────
+       Floating button at bottom-right to open the cart */
+    .cart-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #0057d8;
+      color: #fff;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      display: none;          /* shown by JS after login */
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 200;
+    }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #e53e3e;
+      color: #fff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── CART DRAWER ─────────────────────────
+       Slides in from the right when FAB is clicked */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      display: none;
+      z-index: 300;
+    }
+
+    .drawer-overlay.show { display: block; }
+
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: -360px;       /* Hidden off-screen */
+      width: 340px;
+      height: 100%;
+      background: #fff;
+      border-left: 1px solid #ddd;
+      z-index: 400;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-drawer.open { right: 0; } /* Slide in */
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px;
+      border-bottom: 1px solid #ddd;
+      font-weight: bold;
+    }
+
+    .close-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
+
+    .cart-items { flex: 1; overflow-y: auto; padding: 12px; }
+
+    /* Each item in the cart */
+    .cart-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .cart-item-emoji { font-size: 1.5rem; }
+    .cart-item-info  { flex: 1; }
+    .cart-item-name  { font-size: 0.88rem; font-weight: bold; }
+    .cart-item-price { font-size: 0.82rem; color: #555; }
+
+    /* Quantity controls: − number + */
+    .qty-controls { display: flex; align-items: center; gap: 6px; }
+    .qty-btn { width: 24px; height: 24px; border: 1px solid #ccc; background: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
+    .qty-num { font-size: 0.9rem; min-width: 16px; text-align: center; }
+
+    .drawer-footer {
+      padding: 16px;
+      border-top: 1px solid #ddd;
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="brand" href="../index.html">SmartPortal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">🏠 Home</a></li>
+    <li><a href="portfolio.html">👤 Portfolio</a></li>
+    <li><a href="todo.html">✅ To-Do</a></li>
+    <li><a href="quiz.html">🧠 Quiz</a></li>
+    <li><a href="ecommerce.html">🛒 Shop</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     LOGIN MODAL — displayed until user logs in
+     ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="loginModal" style="display:none;">
+  <div class="modal-box">
+    <h2 id="modalTitle">Welcome Back</h2>
+    <p id="modalSub">Log in to start shopping.</p>
+
+    <div class="form-group">
+      <label class="form-label" for="loginEmail">Email Address</label>
+      <input type="email" id="loginEmail" placeholder="student@example.com" />
+      <div class="form-error" id="loginEmailErr"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="loginPass">Password</label>
+      <input type="password" id="loginPass" placeholder="Min 6 characters" />
+      <div class="form-error" id="loginPassErr"></div>
+    </div>
+
+    <button class="btn btn-primary" id="authBtn" onclick="login()" style="width:100%;">Log In</button>
+
+    <div class="modal-toggle">
+      <span id="footText">Don't have an account? </span>
+      <a id="footLink" onclick="switchForm('signup')">Sign Up</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     STORE CONTENT — shown after login
+     ══════════════════════════════════════════ -->
+<div class="page-wrapper" id="storeContent" style="display:none;">
+
+  <!-- Store header: title + user info + logout -->
+  <div class="store-header">
+    <div>
+      <h1>🛒 Shop Essentials</h1>
+    </div>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span>👤 <strong id="userDisplay">User</strong></span>
+      <button class="btn btn-secondary" onclick="logout()">🚪 Logout</button>
+    </div>
+  </div>
+
+  <!-- Search bar + category filter pills -->
+  <div class="shop-controls">
+    <input type="text" id="searchInput" placeholder="🔍 Search products..." />
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <button class="cat-btn active" data-cat="all"         onclick="setCategory('all')">All</button>
+      <button class="cat-btn"        data-cat="electronics" onclick="setCategory('electronics')">Electronics</button>
+      <button class="cat-btn"        data-cat="accessories" onclick="setCategory('accessories')">Accessories</button>
+      <button class="cat-btn"        data-cat="stationery"  onclick="setCategory('stationery')">Stationery</button>
+    </div>
+  </div>
+
+  <!-- Product cards are inserted here by ecommerce.js -->
+  <div class="products-grid" id="productsGrid"></div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     FLOATING CART BUTTON (bottom-right)
+     ══════════════════════════════════════════ -->
+<button class="cart-fab" id="cartFab" onclick="openCart()" title="View Cart">
+  🛒
+  <span class="cart-badge" id="cartCount" style="display:none;">0</span>
+</button>
+
+<!-- ══════════════════════════════════════════
+     CART DRAWER (slides in from right)
+     ══════════════════════════════════════════ -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeCart()"></div>
+
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-header">
+    <span>🛒 Your Cart</span>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+
+  <!-- Cart items are rendered by JS here -->
+  <div class="cart-items" id="cartItems">
+    <div class="empty-state">
+      <div class="empty-icon">🛒</div>
+      <div class="empty-title">Cart is empty</div>
+      <p>Add some products!</p>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <div class="cart-total">
+      <span>Total</span>
+      <span id="cartTotal">₹0</span>
+    </div>
+    <button class="btn btn-primary" onclick="checkout()" style="width:100%;">
+      💳 Checkout
+    </button>
+  </div>
+</div>
+
+<footer>
+  Built with HTML5 · CSS3 · JavaScript | Smart Student Web Portal © 2025
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/ecommerce.js"></script>
+</body>
+</html>

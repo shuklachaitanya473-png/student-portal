@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Student Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+
+  <!-- Page-specific styles for the home grid -->
+  <style>
+    /* Hero section: center everything */
+    .home-hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .home-hero h1 { font-size: 2.5rem; }
+    .home-hero p  { color: #555; max-width: 520px; margin: 10px auto 0; }
+
+    /* Grid of 4 module cards */
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    /* Each card is a clickable link */
+    .module-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      text-decoration: none;
+      color: #222;
+      display: block;
+    }
+
+    .module-card:hover {
+      border-color: #0057d8;
+      background: #f0f5ff;
+      text-decoration: none;
+    }
+
+    .module-card .icon  { font-size: 2rem; margin-bottom: 10px; }
+    .module-card h3     { margin-bottom: 6px; }
+    .module-card p      { font-size: 0.88rem; color: #555; }
+    .module-card .arrow { color: #0057d8; font-size: 0.85rem; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="brand" href="index.html">SmartPortal</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="pages/portfolio.html">👤 Portfolio</a></li>
+    <li><a href="pages/todo.html">✅ To-Do</a></li>
+    <li><a href="pages/quiz.html">🧠 Quiz</a></li>
+    <li><a href="pages/ecommerce.html">🛒 Shop</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HOME CONTENT -->
+<div class="page-wrapper">
+
+  <!-- Hero: title and tagline -->
+  <div class="home-hero">
+    <div style="font-size:3rem; margin-bottom:12px;">🎓</div>
+    <h1>Your Smart Learning Hub</h1>
+    <p>All your study tools — portfolio, tasks, quizzes, and shopping — in one place.</p>
+  </div>
+
+  <!-- Section heading -->
+  <h2 style="text-align:center; margin-bottom:8px;">Explore Modules</h2>
+  <p style="text-align:center; color:#555; margin-bottom:0;">Click any card to open that section.</p>
+
+  <!-- 4 module cards -->
+  <div class="modules-grid">
+
+    <a href="pages/portfolio.html" class="module-card">
+      <div class="icon">👤</div>
+      <h3>Portfolio</h3>
+      <p>Showcase your profile, skills, and achievements.</p>
+      <div class="arrow">Open Portfolio →</div>
+    </a>
+
+    <a href="pages/todo.html" class="module-card">
+      <div class="icon">✅</div>
+      <h3>To-Do List</h3>
+      <p>Manage tasks with priority levels and progress tracking.</p>
+      <div class="arrow">Manage Tasks →</div>
+    </a>
+
+    <a href="pages/quiz.html" class="module-card">
+      <div class="icon">🧠</div>
+      <h3>Quiz System</h3>
+      <p>Test your web development knowledge with timed questions.</p>
+      <div class="arrow">Start Quiz →</div>
+    </a>
+
+    <a href="pages/ecommerce.html" class="module-card">
+      <div class="icon">🛒</div>
+      <h3>E-Commerce Shop</h3>
+      <p>Browse products, add to cart, wishlist, and checkout.</p>
+      <div class="arrow">Visit Shop →</div>
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  Built with HTML5 · CSS3 · JavaScript | Smart Student Web Portal © 2025
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

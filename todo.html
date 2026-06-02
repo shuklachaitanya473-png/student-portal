@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List — Smart Student Portal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* Two-column layout: sidebar + main */
+    .todo-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* Sidebar card */
+    .sidebar {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .sidebar h3 { margin-bottom: 12px; font-size: 1rem; }
+
+    /* Stats: 4 numbers in a 2x2 grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: #f5f5f5;
+      border-radius: 6px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-box .num  { font-size: 1.4rem; font-weight: bold; }
+    .stat-box .lbl  { font-size: 0.75rem; color: #666; }
+
+    /* Color per priority */
+    .num.blue   { color: #0057d8; }
+    .num.green  { color: #2d8c4e; }
+    .num.purple { color: #6b46c1; }
+    .num.orange { color: #c05621; }
+
+    /* Filter buttons in the sidebar */
+    .filter-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 7px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .filter-btn:hover  { background: #eee; }
+    .filter-btn.active { background: #e8f0fe; color: #0057d8; font-weight: bold; }
+    .filter-btn.danger { color: #e53e3e; }
+
+    /* Main area */
+    .main-area { display: flex; flex-direction: column; gap: 16px; }
+
+    /* Add task card */
+    .add-task-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .add-task-card h3 { margin-bottom: 12px; font-size: 1rem; }
+
+    /* Input row: text input + priority dropdown + button */
+    .add-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .add-row input   { flex: 1; min-width: 180px; }
+    .add-row select  { width: 130px; }
+    .add-row button  { white-space: nowrap; }
+
+    /* Task list header bar */
+    .list-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .list-header span { font-size: 0.85rem; color: #555; }
+
+    /* Individual task row */
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+    }
+
+    /* Completed task: greyed out and strikethrough */
+    .task-item.done .task-text {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    /* Checkbox button */
+    .check-btn {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+      background: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .check-btn.checked { background: #2d8c4e; border-color: #2d8c4e; color: #fff; }
+
+    .task-text { flex: 1; font-size: 0.95rem; }
+
+    /* Priority dot */
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot.high   { background: #e53e3e; }
+    .dot.medium { background: #d69e2e; }
+    .dot.low    { background: #2d8c4e; }
+
+    .task-date   { font-size: 0.75rem; color: #888; }
+
+    .del-btn {
+      background: none;
+      border: none;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 4px;
+    }
+
+    .del-btn:hover { color: #e53e3e; }
+
+    /* Responsive: stack on mobile */
+    @media (max-width: 700px) {
+      .todo-layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="brand" href="../index.html">SmartPortal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">🏠 Home</a></li>
+    <li><a href="portfolio.html">👤 Portfolio</a></li>
+    <li><a href="todo.html">✅ To-Do</a></li>
+    <li><a href="quiz.html">🧠 Quiz</a></li>
+    <li><a href="ecommerce.html">🛒 Shop</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="page-wrapper">
+
+  <h1>✅ My To-Do List</h1>
+  <p style="color:#555; margin-bottom:24px;">Add tasks, set priorities, and track progress.</p>
+
+  <div class="todo-layout">
+
+    <!-- SIDEBAR: stats + filter buttons -->
+    <aside class="sidebar">
+
+      <h3>Progress</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="num blue"   id="statTotal">0</div>
+          <div class="lbl">Total</div>
+        </div>
+        <div class="stat-box">
+          <div class="num green"  id="statDone">0</div>
+          <div class="lbl">Done</div>
+        </div>
+        <div class="stat-box">
+          <div class="num purple" id="statActive">0</div>
+          <div class="lbl">Active</div>
+        </div>
+        <div class="stat-box">
+          <div class="num orange" id="statHigh">0</div>
+          <div class="lbl">Urgent</div>
+        </div>
+      </div>
+
+      <h3>Filter</h3>
+
+      <button class="filter-btn active" data-filter="all"       onclick="setFilter('all')">📋 All Tasks</button>
+      <button class="filter-btn"        data-filter="active"    onclick="setFilter('active')">🔵 Active</button>
+      <button class="filter-btn"        data-filter="completed" onclick="setFilter('completed')">✅ Completed</button>
+
+      <hr style="margin:10px 0; border:none; border-top:1px solid #ddd;">
+
+      <button class="filter-btn" data-filter="high"   onclick="setFilter('high')">🔴 High Priority</button>
+      <button class="filter-btn" data-filter="medium" onclick="setFilter('medium')">🟡 Medium Priority</button>
+      <button class="filter-btn" data-filter="low"    onclick="setFilter('low')">🟢 Low Priority</button>
+
+      <hr style="margin:10px 0; border:none; border-top:1px solid #ddd;">
+
+      <button class="filter-btn danger" onclick="clearCompleted()">🗑️ Clear Completed</button>
+    </aside>
+
+    <!-- MAIN: add task + task list -->
+    <main class="main-area">
+
+      <!-- Add Task Form -->
+      <div class="add-task-card">
+        <h3>➕ Add New Task</h3>
+        <div class="add-row">
+          <input
+            type="text"
+            id="taskInput"
+            placeholder="What do you need to do? (Press Enter)"
+            autocomplete="off"
+          />
+          <select id="taskPriority">
+            <option value="high">🔴 High</option>
+            <option value="medium" selected>🟡 Medium</option>
+            <option value="low">🟢 Low</option>
+          </select>
+          <button class="btn btn-primary" onclick="addTask()">Add Task</button>
+        </div>
+      </div>
+
+      <!-- Task List -->
+      <div class="list-header">
+        <strong>Tasks</strong>
+        <span id="taskCounter">0 tasks</span>
+      </div>
+
+      <div id="taskList">
+        <!-- Tasks are rendered here by todo.js -->
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">No tasks yet!</div>
+          <p>Add your first task above to get started.</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<footer>
+  Built with HTML5 · CSS3 · JavaScript | Smart Student Web Portal © 2025
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/todo.js"></script>
+</body>
+</html>

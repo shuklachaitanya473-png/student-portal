@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz — Smart Student Portal</title>
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <style>
+    /* Center everything in the quiz area */
+    .quiz-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Start / Result screens use a simple card */
+    .quiz-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .quiz-card h2  { margin-bottom: 8px; }
+    .quiz-card p   { color: #555; margin-bottom: 20px; }
+
+    /* Info row: shows 10 questions, 30s, 10 pts */
+    .info-row {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 20px 0;
+    }
+
+    .info-item .val { font-size: 1.8rem; font-weight: bold; color: #0057d8; }
+    .info-item .lbl { font-size: 0.8rem; color: #666; }
+
+    /* Quiz in-progress header: progress | timer | score */
+    .quiz-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    /* Progress bar: a thin coloured bar showing % complete */
+    .progress-bar {
+      background: #eee;
+      border-radius: 4px;
+      height: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #0057d8;
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    /* Timer turns red when time is low */
+    .timer         { font-weight: bold; }
+    .timer.warning { color: #d69e2e; }
+    .timer.danger  { color: #e53e3e; }
+
+    /* Question card */
+    .question-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .q-category {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #0057d8;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+    }
+
+    .q-text { font-size: 1.1rem; font-weight: bold; }
+
+    /* Answer option buttons */
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.95rem;
+    }
+
+    .option-btn:hover:not(:disabled) { background: #f0f5ff; border-color: #0057d8; }
+
+    /* Option letter badge (A B C D) */
+    .opt-letter {
+      background: #eee;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    /* After answering: highlight correct green, wrong red */
+    .option-btn.correct { background: #f0fff4; border-color: #2d8c4e; }
+    .option-btn.wrong   { background: #fff5f5; border-color: #e53e3e; }
+    .option-btn.correct .opt-letter { background: #2d8c4e; color: #fff; }
+    .option-btn.wrong   .opt-letter { background: #e53e3e; color: #fff; }
+
+    /* Explanation box shown after answering */
+    .explanation {
+      background: #fffbea;
+      border: 1px solid #d69e2e;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .explanation.show { display: block; }
+
+    /* Next / Finish button row */
+    .quiz-nav { text-align: right; }
+
+    /* Result screen */
+    .result-card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 32px; text-align: center; }
+
+    .result-pct  { font-size: 3.5rem; font-weight: bold; color: #0057d8; margin: 16px 0 4px; }
+    .result-grade { font-size: 2rem; margin-bottom: 8px; }
+    .result-msg  { color: #555; margin-bottom: 24px; }
+
+    /* Breakdown: 4 numbers in a row */
+    .breakdown {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .breakdown-item .val { font-size: 1.6rem; font-weight: bold; }
+    .breakdown-item .key { font-size: 0.8rem; color: #666; }
+
+    .result-btns { display: flex; gap: 10px; justify-content: center; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="brand" href="../index.html">SmartPortal</a>
+  <ul class="nav-links">
+    <li><a href="../index.html">🏠 Home</a></li>
+    <li><a href="portfolio.html">👤 Portfolio</a></li>
+    <li><a href="todo.html">✅ To-Do</a></li>
+    <li><a href="quiz.html">🧠 Quiz</a></li>
+    <li><a href="ecommerce.html">🛒 Shop</a></li>
+  </ul>
+  <button class="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="page-wrapper">
+  <h1 style="text-align:center; margin-bottom:24px;">🧠 Web Dev Quiz</h1>
+
+  <div class="quiz-wrapper">
+
+    <!-- ══════════════════════════════════════
+         SCREEN 1: START — shown before quiz begins
+         ══════════════════════════════════════ -->
+    <div id="quizStart">
+      <div class="quiz-card">
+        <div style="font-size:3rem; margin-bottom:12px;">🧠</div>
+        <h2>Are You Ready?</h2>
+        <p>Test your knowledge of HTML, CSS, and JavaScript.</p>
+
+        <div class="info-row">
+          <div class="info-item">
+            <div class="val">10</div>
+            <div class="lbl">Questions</div>
+          </div>
+          <div class="info-item">
+            <div class="val">30s</div>
+            <div class="lbl">Per Question</div>
+          </div>
+          <div class="info-item">
+            <div class="val">10+</div>
+            <div class="lbl">Pts Each</div>
+          </div>
+        </div>
+
+        <p style="font-size:0.85rem; margin-bottom:20px;">
+          ⚡ Faster answers earn bonus points! Expired questions count as wrong.
+        </p>
+
+        <button class="btn btn-primary" onclick="startQuiz()" style="font-size:1rem; padding:10px 28px;">
+          🚀 Start Quiz
+        </button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SCREEN 2: QUIZ — shown during the quiz
+         ══════════════════════════════════════ -->
+    <div id="quizScreen" style="display:none;">
+
+      <!-- Header bar -->
+      <div class="quiz-header">
+        <span>Question <span id="qProgress">1 / 10</span></span>
+        <span class="timer" id="qTimer">⏱ 30s</span>
+        <span>Score: <strong id="qScore">0</strong></span>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+
+      <!-- Question card -->
+      <div class="question-card">
+        <div class="q-category" id="qCategory">HTML</div>
+        <div class="q-text" id="qText">Loading...</div>
+      </div>
+
+      <!-- Answer options (A B C D) -->
+      <div id="optionsList"></div>
+
+      <!-- Explanation: shown after an answer is selected -->
+      <div class="explanation" id="explanation"></div>
+
+      <!-- Next / Finish button -->
+      <div class="quiz-nav">
+        <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>
+          Next →
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════
+         SCREEN 3: RESULT — shown after all questions
+         ══════════════════════════════════════ -->
+    <div id="quizResult" style="display:none;">
+      <div class="result-card">
+        <div style="font-size:2.5rem;">🎓</div>
+        <div class="result-pct"   id="rPct">0%</div>
+        <div class="result-grade" id="rGrade">F</div>
+        <div class="result-msg"   id="rMessage">Keep practicing!</div>
+
+        <div class="breakdown">
+          <div class="breakdown-item">
+            <div class="val" style="color:#0057d8" id="rScore">0</div>
+            <div class="key">Points</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="val" style="color:#2d8c4e" id="rCorrect">0</div>
+            <div class="key">Correct</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="val" style="color:#e53e3e" id="rWrong">0</div>
+            <div class="key">Wrong</div>
+          </div>
+        </div>
+
+        <div class="result-btns">
+          <button class="btn btn-primary" onclick="startQuiz()">🔄 Try Again</button>
+          <a href="../index.html" class="btn btn-secondary">🏠 Home</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end quiz-wrapper -->
+</div>
+
+<footer>
+  Built with HTML5 · CSS3 · JavaScript | Smart Student Web Portal © 2025
+</footer>
+
+<script src="../js/main.js"></script>
+<script src="../js/quiz.js"></script>
+</body>
+</html>
